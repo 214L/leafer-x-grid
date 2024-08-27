@@ -13,7 +13,7 @@ import serve from 'rollup-plugin-serve'
 // config
 
 const basePath = '.'
-const globalName = 'LeaferX.selector' // <script /> 插件的全局变量名
+const globalName = 'LeaferX.gridPlugin' // <script /> 插件的全局变量名
 const supportPlatforms = ['web','worker','node','miniapp']
 const external = {'@leafer-ui/core':  'LeaferUI'} // 声明外部依赖，不打进插件包，只引用
 

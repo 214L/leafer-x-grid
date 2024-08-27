@@ -1,1 +1,1 @@
-export { Selector, SelectEvent } from './Selector'
+export { GridPlugin } from './GridPlugin'
