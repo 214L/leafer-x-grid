@@ -19,9 +19,7 @@ export function getCanvasPos(
   let i = Math.floor(leftX / xStep)
   let xPos = []
   for (; i * xStep < zoomRTPos.x; i++) {
-    // xPos.push(i * xStep)
-    const x = ((i * xStep - leftX) / xLen) * width
-    xPos.push(x)
+    xPos.push(((i * xStep - leftX) / xLen) * width)
   }
 
   const leftY = zoomLTPos.y
@@ -29,8 +27,7 @@ export function getCanvasPos(
   let j = Math.floor(leftY / yStep)
   let yPos = []
   for (; j * yStep < zoomRBPos.y; j++) {
-    const y = ((j * yStep - leftY) / yLen) * height
-    yPos.push(y)
+    yPos.push(((j * yStep - leftY) / yLen) * height)
   }
 
   return {

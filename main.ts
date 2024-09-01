@@ -1,21 +1,27 @@
-import { Leafer, App, Rect } from 'leafer-ui'
+import { App, Rect } from 'leafer-ui'
 
 import { GridPlugin } from './src' // 引入插件代码
-import { IUserConfig } from './src/interface'
-const leafer = new Leafer({
+// const leafer = new Leafer({
+//   view: window,
+//   zoom: { min: 0.02, max: 256 }
+// })
+
+
+const app = new App({
   view: window,
-  zoom: { min: 0.02, max: 256 }
+  ground: { type: 'draw' }, // 可选
+  tree: {},
+  sky: { type: 'draw', usePartRender: false }
 })
 
-
-// new GridPlugin(leafer, {
-//   color: 'black',
-//   position: 'above',
-//   zIndex: 1000,
-//   show: true,
-//   gridStepX: 10,
-//   gridStepY: 10,
-// })
+new GridPlugin(app, {
+  color: 'black',
+  position: 'above',
+  zIndex: 1000,
+  show: true,
+  gridStepX: 10,
+  gridStepY: 10,
+})
 const rect2 = new Rect({
   x: 150,
   y: 150,
@@ -36,5 +42,5 @@ const rect = new Rect({
   // zIndex: -3
 })
 
-leafer.add(rect2)
-leafer.add(rect)
+app.tree.add(rect2)
+app.tree.add(rect)
