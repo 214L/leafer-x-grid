@@ -19,8 +19,8 @@ new GridPlugin(app, {
   position: 'above',
   zIndex: 1000,
   show: true,
-  gridStepX: 10,
-  gridStepY: 10,
+  gridStepX: 50,
+  gridStepY: 50,
 })
 const rect2 = new Rect({
   x: 150,
@@ -29,7 +29,6 @@ const rect2 = new Rect({
   height: 100,
   fill: '#324449',
   draggable: true,
-  // zIndex: -2
 })
 
 const rect = new Rect({
