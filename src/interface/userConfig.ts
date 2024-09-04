@@ -14,6 +14,7 @@ export interface IUserConfig {
 interface ILineStyle {
   color?: string
   lineWidth?: number
+  lineDash?:number[]
 }
 
 interface ICircleStyle {

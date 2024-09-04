@@ -1,4 +1,4 @@
-import { ILeafer, ICanvasContext2D } from '@leafer-ui/interface'
+import { ILeafer } from '@leafer-ui/interface'
 import {
   App,
   Canvas,
@@ -8,7 +8,7 @@ import {
   LeaferEvent
 } from 'leafer-ui'
 import { IUserConfig } from './interface'
-import { getCanvasPos } from './utils'
+import { getCanvasPos, deepMerge } from './utils'
 import { defaultConfig } from './defaultConfig'
 
 export class GridPlugin {
@@ -17,7 +17,9 @@ export class GridPlugin {
   private gridCanvas: Canvas
   constructor(instance: ILeafer | App, userConfig: IUserConfig = {}) {
     this.instance = instance
-    this.userConfig = Object.assign({}, defaultConfig, userConfig)
+    // this.userConfig = Object.assign({}, defaultConfig, userConfig)
+    this.userConfig = deepMerge({ ...defaultConfig }, userConfig)
+
     this.init()
     this.instance.on_(ZoomEvent.ZOOM, this.handleRender, this)
     this.instance.on_(MoveEvent.MOVE, this.handleRender, this)
@@ -26,7 +28,6 @@ export class GridPlugin {
   private handleRender(e: LeaferEvent) {
     // console.time('render')
     if (e instanceof ResizeEvent) {
-      console.log(e.width, e.height)
       this.renderGrid(e.width, e.height)
     } else {
       this.renderGrid()
@@ -55,8 +56,7 @@ export class GridPlugin {
       gridStepY
     )
     this.drawLineGrid(res.xPos, res.yPos)
-    this.drawPointGrid(this.gridCanvas.context, res.xPos, res.yPos)
-
+    this.drawPointGrid(res.xPos, res.yPos)
     // let pos = this.instance.getInnerPoint({ x: 0, y: 0 })
     // this.gridCanvas.x = pos.x
     // this.gridCanvas.y = pos.y
@@ -65,9 +65,10 @@ export class GridPlugin {
   drawLineGrid(xPos: number[], yPos: number[]) {
     let ctx = this.gridCanvas.context
     ctx.save()
-    let { color: strokeStyle, lineWidth ,} = this.userConfig.lineStyle
+    let { color: strokeStyle, lineWidth, lineDash } = this.userConfig.lineStyle
     ctx.strokeStyle = strokeStyle
     ctx.lineWidth = lineWidth
+    ctx.setLineDash(lineDash)
     let { width, height } = this.instance
     if (xPos.length) {
       for (let i = 0; i < xPos.length; i++) {
@@ -81,10 +82,11 @@ export class GridPlugin {
     }
     ctx.restore()
   }
-  drawPointGrid(ctx: ICanvasContext2D, xPos: number[], yPos: number[]) {
+  drawPointGrid(xPos: number[], yPos: number[]) {
+    let { radius } = this.userConfig.circleStyle
     for (let i = xPos.length; i >= 0; i--) {
       for (let j = yPos.length; j >= 0; j--) {
-        this.drawPoint(ctx, xPos[i], yPos[j], 2)
+        this.drawPoint(xPos[i], yPos[j], radius)
       }
     }
   }
@@ -95,13 +97,8 @@ export class GridPlugin {
     ctx.lineTo(x2, y2)
     ctx.stroke()
   }
-  // 假设 drawPoint 是用于在画布上绘制圆点的函数
-  private drawPoint(
-    ctx: ICanvasContext2D,
-    x: number,
-    y: number,
-    radius: number
-  ) {
+  private drawPoint(x: number, y: number, radius: number) {
+    let ctx = this.gridCanvas.context
     ctx.fillStyle = this.userConfig.circleStyle.color
     ctx.beginPath()
     ctx.arc(x, y, radius, 0, 2 * Math.PI)

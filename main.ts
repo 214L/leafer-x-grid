@@ -11,10 +11,11 @@ const app = new App({
   view: window,
   ground: { type: 'draw' }, // 可选
   tree: {},
-  sky: { type: 'draw', usePartRender: false }
+  sky: { type: 'draw', usePartRender: false },
 })
 
 new GridPlugin(app, {
+  lineStyle:{lineDash:[]},
   position: 'above',
   zIndex: 1000,
   show: true,
@@ -39,6 +40,7 @@ const rect = new Rect({
   // draggable: true,
   // zIndex: -3
 })
+
 
 app.tree.add(rect2)
 app.tree.add(rect)
