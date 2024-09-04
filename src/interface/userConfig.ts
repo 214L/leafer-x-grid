@@ -1,11 +1,10 @@
 export interface IUserConfig {
   show?: boolean
   type?: 'line' | 'circle' | 'both'
-  position?: 'above' | 'below"'
+  position?: 'above' | 'below'
   lineStyle?: ILineStyle
   circleStyle?: ICircleStyle
   zIndex?: number
-  size?: number
   lineWidth?: number
   lineLength?: number
   gridStepX?: number

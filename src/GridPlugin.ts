@@ -1,6 +1,7 @@
 import { ILeafer } from '@leafer-ui/interface'
 import {
   App,
+  Leafer,
   Canvas,
   MoveEvent,
   ZoomEvent,
@@ -19,7 +20,6 @@ export class GridPlugin {
     this.instance = instance
     // this.userConfig = Object.assign({}, defaultConfig, userConfig)
     this.userConfig = deepMerge({ ...defaultConfig }, userConfig)
-
     this.init()
     this.instance.on_(ZoomEvent.ZOOM, this.handleRender, this)
     this.instance.on_(MoveEvent.MOVE, this.handleRender, this)
@@ -58,9 +58,9 @@ export class GridPlugin {
     if (type === 'both') {
       this.drawLineGrid(res.xPos, res.yPos)
       this.drawPointGrid(res.xPos, res.yPos)
-    }else if(type === 'circle'){
+    } else if (type === 'circle') {
       this.drawPointGrid(res.xPos, res.yPos)
-    }else if(type === 'line'){
+    } else if (type === 'line') {
       this.drawLineGrid(res.xPos, res.yPos)
     }
 
@@ -113,35 +113,44 @@ export class GridPlugin {
   }
 
   private init() {
-    //app
+    const { position, zIndex } = this.userConfig;
+    const isDrawType = (leafer: ILeafer | undefined) => leafer?.config.type === 'draw';
+    const createLeafer = () => new Leafer({ type: 'draw', usePartRender: false });
+    const createCanvas = () => new Canvas({
+      width: this.instance.width,
+      height: this.instance.height,
+      stroke: 'yellow',
+      strokeWidth: 5,
+      hittable: false,
+      zIndex
+    });
+  
+    let aimLeafer: ILeafer | undefined;
+  
     if (this.instance.isApp) {
-      //sky && sky type == draw
-      if (this.instance.sky && this.instance.sky.config.type === 'draw') {
-        const leaferCanvas = new Canvas({
-          width: this.instance.width,
-          height: this.instance.height,
-          stroke: 'yellow',
-          strokeWidth: 5,
-          hittable: false
-        })
-        this.gridCanvas = leaferCanvas
-        this.instance.sky.add(leaferCanvas)
-        // this.instance.add()
+      if (position === 'above') {
+        if (!this.instance.sky || !isDrawType(this.instance.sky)) {
+          this.instance.sky = createLeafer();
+          this.instance.addAfter(this.instance.sky, this.instance.sky);
+        }
+        aimLeafer = this.instance.sky;
+      } else if (position === 'below') {
+        if (!this.instance.ground || !isDrawType(this.instance.ground)) {
+          this.instance.ground = createLeafer();
+          this.instance.addBefore(this.instance.ground, this.instance.ground);
+        }
+        aimLeafer = this.instance.ground;
       }
-      //sky type !== draw
-    } else if (!this.instance.isApp && this.instance.isLeafer) {
-      //single leafer
-      const leaferCanvas = new Canvas({
-        width: this.instance.width,
-        height: this.instance.height,
-        stroke: 'yellow',
-        strokeWidth: 5
-      })
-      this.gridCanvas = leaferCanvas
-      let instance = this.instance as ILeafer
-      instance.add(leaferCanvas)
+    } else if (this.instance.isLeafer) {
+      aimLeafer = this.instance as ILeafer;
+    }
+  
+    if (aimLeafer) {
+      this.gridCanvas = createCanvas();
+      aimLeafer.add(this.gridCanvas);
     }
   }
+  
   public showGrid() {}
   public hideGrid() {}
 }
