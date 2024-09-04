@@ -20,9 +20,6 @@ export class GridPlugin {
     this.instance = instance
     this.userConfig = deepMerge({ ...defaultConfig }, userConfig)
     this.init()
-    this.instance.on_(ZoomEvent.ZOOM, this.handleRender, this)
-    this.instance.on_(MoveEvent.MOVE, this.handleRender, this)
-    this.instance.sky.on_(ResizeEvent.RESIZE, this.handleRender, this)
   }
   private handleRender(e: LeaferEvent) {
     // console.time('render')
@@ -62,10 +59,13 @@ export class GridPlugin {
     } else if (type === 'line') {
       this.drawLineGrid(res.xPos, res.yPos)
     }
-
-    // let pos = this.instance.getInnerPoint({ x: 0, y: 0 })
-    // this.gridCanvas.x = pos.x
-    // this.gridCanvas.y = pos.y
+    if (!this.instance.isApp) {
+      this.gridCanvas.scaleX = 1 / this.instance.scaleX
+      this.gridCanvas.scaleY = 1 / this.instance.scaleY
+      let pos = this.instance.getInnerPoint({ x: 0, y: 0 })
+      this.gridCanvas.x = pos.x
+      this.gridCanvas.y = pos.y
+    }
     this.gridCanvas.forceUpdate()
   }
   private drawLineGrid(xPos: number[], yPos: number[]) {
@@ -113,44 +113,65 @@ export class GridPlugin {
 
   private init() {
     const { position, zIndex } = this.userConfig;
-    const isDrawType = (leafer: ILeafer | undefined) => leafer?.config.type === 'draw';
-    const createLeafer = () => new Leafer({ type: 'draw', usePartRender: false });
-    const createCanvas = () => new Canvas({
-      width: this.instance.width,
-      height: this.instance.height,
-      stroke: 'yellow',
-      strokeWidth: 5,
-      hittable: false,
-      zIndex
-    });
-  
+
+    const isDrawType = (leafer: ILeafer | undefined) =>
+        leafer?.config.type === 'draw';
+
+    const createLeafer = () =>
+        new Leafer({ type: 'draw', usePartRender: false });
+
+    const createCanvas = () =>
+        new Canvas({
+            width: this.instance.width,
+            height: this.instance.height,
+            stroke: 'yellow',
+            strokeWidth: 5,
+            hittable: false,
+            zIndex
+        });
+
+    const addCanvasToLeafer = (leafer: ILeafer, position: string) => {
+        this.gridCanvas = createCanvas();
+        if (position === 'above') {
+            leafer.addAt(this.gridCanvas, 0);
+        } else if (position === 'below') {
+            leafer.addAt(this.gridCanvas, leafer.children.length);
+        }
+    };
+
     let aimLeafer: ILeafer | undefined;
-  
+
     if (this.instance.isApp) {
-      if (position === 'above') {
-        if (!this.instance.sky || !isDrawType(this.instance.sky)) {
-          this.instance.sky = createLeafer();
-          this.instance.addAfter(this.instance.sky, this.instance.sky);
+        if (position === 'above') {
+            if (!this.instance.sky || !isDrawType(this.instance.sky)) {
+                this.instance.sky = createLeafer();
+                this.instance.addAfter(this.instance.sky, this.instance.sky);
+            }
+            aimLeafer = this.instance.sky;
+        } else if (position === 'below') {
+            if (!this.instance.ground || !isDrawType(this.instance.ground)) {
+                this.instance.ground = createLeafer();
+                this.instance.addBefore(this.instance.ground, this.instance.ground);
+            }
+            aimLeafer = this.instance.ground;
         }
-        aimLeafer = this.instance.sky;
-      } else if (position === 'below') {
-        if (!this.instance.ground || !isDrawType(this.instance.ground)) {
-          this.instance.ground = createLeafer();
-          this.instance.addBefore(this.instance.ground, this.instance.ground);
-        }
-        aimLeafer = this.instance.ground;
-      }
     } else if (this.instance.isLeafer) {
-      aimLeafer = this.instance as ILeafer;
+        aimLeafer = this.instance as ILeafer;
+        addCanvasToLeafer(aimLeafer, position);
+        this.instance.on_(ResizeEvent.RESIZE, this.handleRender, this);
     }
-  
-    if (aimLeafer) {
-      this.gridCanvas = createCanvas();
-      aimLeafer.add(this.gridCanvas);
+
+    if (aimLeafer && this.instance.isApp) {
+        this.gridCanvas = createCanvas();
+        aimLeafer.add(this.gridCanvas);
+        this.instance.sky.on_(ResizeEvent.RESIZE, this.handleRender, this);
     }
-    this.renderGrid()
-  }
-  
+
+    this.instance.on_(ZoomEvent.ZOOM, this.handleRender, this);
+    this.instance.on_(MoveEvent.MOVE, this.handleRender, this);
+
+    this.renderGrid();
+}
   public showGrid() {}
   public hideGrid() {}
 }
