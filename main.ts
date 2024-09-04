@@ -1,5 +1,5 @@
-import { App, Rect } from 'leafer-ui'
-
+import { App, Rect } from '@leafer-ui/core'
+import '@leafer-in/editor' // 导入图形编辑器插件
 import { GridPlugin } from './src' // 引入插件代码
 // const leafer = new Leafer({
 //   view: window,
@@ -12,11 +12,12 @@ const app = new App({
   ground: { type: 'draw' }, // 可选
   tree: {},
   sky: { type: 'draw', usePartRender: false },
+  editor:{}
 })
 
 new GridPlugin(app, {
-  lineStyle:{lineDash:[]},
-  position: 'above',
+  lineStyle:{color:'rgba(0,0,0,0.5)'},
+  position: 'below',
   zIndex: 1000,
   show: true,
   gridStepX: 50,
@@ -37,6 +38,7 @@ const rect = new Rect({
   width: 100,
   height: 100,
   fill: '#32cd79',
+  editable: true
   // draggable: true,
   // zIndex: -3
 })

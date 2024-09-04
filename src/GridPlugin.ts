@@ -18,7 +18,6 @@ export class GridPlugin {
   private gridCanvas: Canvas
   constructor(instance: ILeafer | App, userConfig: IUserConfig = {}) {
     this.instance = instance
-    // this.userConfig = Object.assign({}, defaultConfig, userConfig)
     this.userConfig = deepMerge({ ...defaultConfig }, userConfig)
     this.init()
     this.instance.on_(ZoomEvent.ZOOM, this.handleRender, this)
@@ -69,7 +68,7 @@ export class GridPlugin {
     // this.gridCanvas.y = pos.y
     this.gridCanvas.forceUpdate()
   }
-  drawLineGrid(xPos: number[], yPos: number[]) {
+  private drawLineGrid(xPos: number[], yPos: number[]) {
     let ctx = this.gridCanvas.context
     ctx.save()
     let { color: strokeStyle, lineWidth, lineDash } = this.userConfig.lineStyle
@@ -89,7 +88,7 @@ export class GridPlugin {
     }
     ctx.restore()
   }
-  drawPointGrid(xPos: number[], yPos: number[]) {
+  private drawPointGrid(xPos: number[], yPos: number[]) {
     let { radius } = this.userConfig.circleStyle
     for (let i = xPos.length; i >= 0; i--) {
       for (let j = yPos.length; j >= 0; j--) {
@@ -149,6 +148,7 @@ export class GridPlugin {
       this.gridCanvas = createCanvas();
       aimLeafer.add(this.gridCanvas);
     }
+    this.renderGrid()
   }
   
   public showGrid() {}

@@ -52,7 +52,8 @@
     "vitest": "^0.34.4"
   },
   "dependencies": {
-    "@leafer-ui/core": "^1.0.0-rc.22"
+    "@leafer-in/editor": "^1.0.2",
+    "@leafer-ui/core": "^1.0.2"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org"
