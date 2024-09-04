@@ -15,7 +15,6 @@ const app = new App({
 })
 
 new GridPlugin(app, {
-  color: 'black',
   position: 'above',
   zIndex: 1000,
   show: true,
