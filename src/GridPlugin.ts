@@ -47,7 +47,7 @@ export class GridPlugin {
     }
     let canvasLT = { x: 0, y: 0 }
     let canvasRB = { x: this.instance.width, y: this.instance.height }
-    let { gridStepX, gridStepY } = this.userConfig
+    let { gridStepX, gridStepY, type } = this.userConfig
     let res = getCanvasPos(
       this.instance,
       canvasLT,
@@ -55,8 +55,15 @@ export class GridPlugin {
       gridStepX,
       gridStepY
     )
-    this.drawLineGrid(res.xPos, res.yPos)
-    this.drawPointGrid(res.xPos, res.yPos)
+    if (type === 'both') {
+      this.drawLineGrid(res.xPos, res.yPos)
+      this.drawPointGrid(res.xPos, res.yPos)
+    }else if(type === 'circle'){
+      this.drawPointGrid(res.xPos, res.yPos)
+    }else if(type === 'line'){
+      this.drawLineGrid(res.xPos, res.yPos)
+    }
+
     // let pos = this.instance.getInnerPoint({ x: 0, y: 0 })
     // this.gridCanvas.x = pos.x
     // this.gridCanvas.y = pos.y
