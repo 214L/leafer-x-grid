@@ -28,6 +28,7 @@
     "test": "vitest"
   },
   "devDependencies": {
+    "@leafer-in/editor": "^1.0.2",
     "@rollup/plugin-commonjs": "^25.0.4",
     "@rollup/plugin-html": "^1.0.2",
     "@rollup/plugin-multi-entry": "^6.0.0",
@@ -52,8 +53,9 @@
     "vitest": "^0.34.4"
   },
   "dependencies": {
-    "@leafer-in/editor": "^1.0.2",
-    "@leafer-ui/core": "^1.0.2"
+    "@leafer-ui/core": "^1.0.2",
+    "@leafer-ui/node": "1.0.2",
+    "@napi-rs/canvas": "^0.1.55"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org"
