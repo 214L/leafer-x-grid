@@ -11,7 +11,7 @@ export const defaultConfig: IUserConfig = {
     radius: 2
   },
   position: 'above',
-  zIndex: 1000,
+  zIndex: 0,
   show: true,
   gridStepX: 50,
   gridStepY: 50

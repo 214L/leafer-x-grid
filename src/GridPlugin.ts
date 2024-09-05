@@ -8,6 +8,15 @@ import {
   ResizeEvent,
   LeaferEvent
 } from 'leafer-ui'
+// import {
+//   App,
+//   Leafer,
+//   Canvas,
+//   MoveEvent,
+//   ZoomEvent,
+//   ResizeEvent,
+//   LeaferEvent
+// } from '@leafer-ui/core'
 import { IUserConfig } from './interface'
 import { getCanvasPos, deepMerge } from './utils'
 import { defaultConfig } from './defaultConfig'
@@ -112,12 +121,11 @@ export class GridPlugin {
   }
 
   private init() {
-    const { position, zIndex } = this.userConfig;
-    
-    const isDrawType = (leafer: ILeafer | undefined) => leafer?.config.type === 'draw';
-  
-    const createLeafer = () => new Leafer({ type: 'draw', usePartRender: false });
-  
+    const { position, zIndex } = this.userConfig
+    const isDrawType = (leafer: ILeafer | undefined) =>
+      leafer?.config.type === 'draw'
+    const createLeafer = () =>
+      new Leafer({ type: 'draw', usePartRender: false })
     const createCanvas = () =>
       new Canvas({
         width: this.instance.width,
@@ -126,62 +134,60 @@ export class GridPlugin {
         strokeWidth: 5,
         hittable: false,
         zIndex
-      });
-  
+      })
     const addCanvasToLeafer = (leafer: ILeafer, position: string) => {
-      const gridCanvas = createCanvas();
-      this.gridCanvas = gridCanvas;
+      const gridCanvas = createCanvas()
+      this.gridCanvas = gridCanvas
       if (position === 'above') {
-        leafer.addAt(gridCanvas, 0);
+        //leafer bug : leafer 中 addAt 0 无法到最前
+        leafer.addAt(gridCanvas, 0)
       } else if (position === 'below') {
-        leafer.addAt(gridCanvas, leafer.children.length);
+        leafer.addAt(gridCanvas, leafer.children.length)
       }
-    };
-  
+    }
     const handleResize = (leafer: ILeafer) => {
-      leafer.on_(ResizeEvent.RESIZE, this.handleRender, this);
-    };
-  
+      leafer.on_(ResizeEvent.RESIZE, this.handleRender, this)
+    }
     const getOrCreateLeafer = (position: string): ILeafer => {
-      const isAbove = position === 'above';
-      const existingLeafer = isAbove ? this.instance.sky : this.instance.ground;
-  
+      const isAbove = position === 'above'
+      const existingLeafer = isAbove ? this.instance.sky : this.instance.ground
+
       if (!existingLeafer) {
-        const newLeafer = createLeafer();
-        this.instance.addAt(newLeafer, isAbove ? 0 : this.instance.children.length);
-        return newLeafer;
+        const newLeafer = createLeafer()
+        this.instance.addAt(
+          newLeafer,
+          isAbove ? 0 : this.instance.children.length
+        )
+        return newLeafer
       }
-  
+
       if (!isDrawType(existingLeafer)) {
-        const newLeafer = createLeafer();
-        this.instance.addAfter(newLeafer, existingLeafer);
-        return newLeafer;
+        const newLeafer = createLeafer()
+        this.instance.addAfter(newLeafer, existingLeafer)
+        return newLeafer
       }
-  
-      return existingLeafer;
-    };
-  
-    let aimLeafer: ILeafer | undefined;
-  
+
+      return existingLeafer
+    }
+
+    let aimLeafer: ILeafer | undefined
+
     if (this.instance.isApp) {
-      aimLeafer = getOrCreateLeafer(position);
+      aimLeafer = getOrCreateLeafer(position)
+      addCanvasToLeafer(aimLeafer, position)
+      handleResize(aimLeafer)
     } else if (this.instance.isLeafer) {
-      aimLeafer = this.instance as ILeafer;
-      addCanvasToLeafer(aimLeafer, position);
-      handleResize(aimLeafer);
+      aimLeafer = this.instance as ILeafer
+      addCanvasToLeafer(aimLeafer, position)
+      handleResize(aimLeafer)
     }
-  
-    if (aimLeafer && this.instance.isApp) {
-      addCanvasToLeafer(aimLeafer, position);
-      handleResize(aimLeafer);
-    }
-  
-    this.instance.on_(ZoomEvent.ZOOM, this.handleRender, this);
-    this.instance.on_(MoveEvent.MOVE, this.handleRender, this);
-  
-    this.renderGrid();
+
+    this.instance.on_(ZoomEvent.ZOOM, this.handleRender, this)
+    this.instance.on_(MoveEvent.MOVE, this.handleRender, this)
+
+    this.renderGrid()
   }
-  
+
   public showGrid() {}
   public hideGrid() {}
 }
