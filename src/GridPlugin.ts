@@ -113,65 +113,75 @@ export class GridPlugin {
 
   private init() {
     const { position, zIndex } = this.userConfig;
-
-    const isDrawType = (leafer: ILeafer | undefined) =>
-        leafer?.config.type === 'draw';
-
-    const createLeafer = () =>
-        new Leafer({ type: 'draw', usePartRender: false });
-
+    
+    const isDrawType = (leafer: ILeafer | undefined) => leafer?.config.type === 'draw';
+  
+    const createLeafer = () => new Leafer({ type: 'draw', usePartRender: false });
+  
     const createCanvas = () =>
-        new Canvas({
-            width: this.instance.width,
-            height: this.instance.height,
-            stroke: 'yellow',
-            strokeWidth: 5,
-            hittable: false,
-            zIndex
-        });
-
+      new Canvas({
+        width: this.instance.width,
+        height: this.instance.height,
+        stroke: 'yellow',
+        strokeWidth: 5,
+        hittable: false,
+        zIndex
+      });
+  
     const addCanvasToLeafer = (leafer: ILeafer, position: string) => {
-        this.gridCanvas = createCanvas();
-        if (position === 'above') {
-            leafer.addAt(this.gridCanvas, 0);
-        } else if (position === 'below') {
-            leafer.addAt(this.gridCanvas, leafer.children.length);
-        }
+      const gridCanvas = createCanvas();
+      this.gridCanvas = gridCanvas;
+      if (position === 'above') {
+        leafer.addAt(gridCanvas, 0);
+      } else if (position === 'below') {
+        leafer.addAt(gridCanvas, leafer.children.length);
+      }
     };
-
+  
+    const handleResize = (leafer: ILeafer) => {
+      leafer.on_(ResizeEvent.RESIZE, this.handleRender, this);
+    };
+  
+    const getOrCreateLeafer = (position: string): ILeafer => {
+      const isAbove = position === 'above';
+      const existingLeafer = isAbove ? this.instance.sky : this.instance.ground;
+  
+      if (!existingLeafer) {
+        const newLeafer = createLeafer();
+        this.instance.addAt(newLeafer, isAbove ? 0 : this.instance.children.length);
+        return newLeafer;
+      }
+  
+      if (!isDrawType(existingLeafer)) {
+        const newLeafer = createLeafer();
+        this.instance.addAfter(newLeafer, existingLeafer);
+        return newLeafer;
+      }
+  
+      return existingLeafer;
+    };
+  
     let aimLeafer: ILeafer | undefined;
-
+  
     if (this.instance.isApp) {
-        if (position === 'above') {
-            if (!this.instance.sky || !isDrawType(this.instance.sky)) {
-                this.instance.sky = createLeafer();
-                this.instance.addAfter(this.instance.sky, this.instance.sky);
-            }
-            aimLeafer = this.instance.sky;
-        } else if (position === 'below') {
-            if (!this.instance.ground || !isDrawType(this.instance.ground)) {
-                this.instance.ground = createLeafer();
-                this.instance.addBefore(this.instance.ground, this.instance.ground);
-            }
-            aimLeafer = this.instance.ground;
-        }
+      aimLeafer = getOrCreateLeafer(position);
     } else if (this.instance.isLeafer) {
-        aimLeafer = this.instance as ILeafer;
-        addCanvasToLeafer(aimLeafer, position);
-        this.instance.on_(ResizeEvent.RESIZE, this.handleRender, this);
+      aimLeafer = this.instance as ILeafer;
+      addCanvasToLeafer(aimLeafer, position);
+      handleResize(aimLeafer);
     }
-
+  
     if (aimLeafer && this.instance.isApp) {
-        this.gridCanvas = createCanvas();
-        aimLeafer.add(this.gridCanvas);
-        this.instance.sky.on_(ResizeEvent.RESIZE, this.handleRender, this);
+      addCanvasToLeafer(aimLeafer, position);
+      handleResize(aimLeafer);
     }
-
+  
     this.instance.on_(ZoomEvent.ZOOM, this.handleRender, this);
     this.instance.on_(MoveEvent.MOVE, this.handleRender, this);
-
+  
     this.renderGrid();
-}
+  }
+  
   public showGrid() {}
   public hideGrid() {}
 }

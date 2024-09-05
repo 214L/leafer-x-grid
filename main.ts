@@ -1,21 +1,22 @@
-import { App, Leafer, Rect } from '@leafer-ui/core'
+import { App, Leaf, Leafer, Rect } from '@leafer-ui/core'
 import '@leafer-in/editor' // 导入图形编辑器插件
 import { GridPlugin } from './src' // 引入插件代码
-// const leafer = new Leafer({
-//   view: window,
-//   zoom: { min: 0.02, max: 256 }
-// })
-
-// const app = new App({
-//   view: window,
-//   ground: { type: 'draw' }, // 可选
-//   tree: {},
-//   sky: { type: 'draw', usePartRender: false },
-//   editor:{}
-// })
-const app = new Leafer({
-  view: window
-})
+let isApp = true
+let app: App | Leafer
+if (isApp) {
+  app = new App({
+    view: window,
+    ground: { type: 'draw' }, // 可选
+    tree: {},
+    sky: { type: 'draw', usePartRender: false },
+    editor: {}
+  }) as App
+} else {
+  app = new Leafer({
+    view: window,
+    zoom: { min: 0.02, max: 256 }
+  }) as Leafer
+}
 
 new GridPlugin(app, {
   lineStyle: { color: 'rgba(0,0,0,0.5)' },
@@ -45,8 +46,14 @@ const rect = new Rect({
   // zIndex: -3
 })
 
-// app.tree.add(rect2)
-// app.tree.add(rect)
-app.add(rect2)
-app.add(rect)
-console.log(app);
+if (app.isLeafer) {
+  let aim = app as App
+  aim.tree.add(rect2)
+  aim.tree.add(rect)
+} else {
+  let aim = app as Leafer
+  aim.add(rect2)
+  aim.add(rect)
+}
+
+console.log(app)
