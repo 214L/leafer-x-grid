@@ -10,6 +10,7 @@ export const defaultConfig: IUserConfig = {
     color: 'rgb(128, 128, 128)',
     radius: 2
   },
+  gridDensityStrategy:'expand',
   position: 'above',
   zIndex: 0,
   show: true,

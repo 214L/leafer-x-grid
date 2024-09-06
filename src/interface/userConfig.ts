@@ -5,15 +5,14 @@ export interface IUserConfig {
   lineStyle?: ILineStyle
   circleStyle?: ICircleStyle
   zIndex?: number
-  lineWidth?: number
-  lineLength?: number
   gridStepX?: number
   gridStepY?: number
+  gridDensityStrategy?: 'hide' | 'expand'
 }
 interface ILineStyle {
   color?: string
   lineWidth?: number
-  lineDash?:number[]
+  lineDash?: number[]
 }
 
 interface ICircleStyle {

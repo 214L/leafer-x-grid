@@ -58,8 +58,10 @@ export class GridPlugin {
       canvasLT,
       canvasRB,
       gridStepX,
-      gridStepY
+      gridStepY,
+      this.userConfig.gridDensityStrategy
     )
+    
     if (type === 'both') {
       this.drawLineGrid(res.xPos, res.yPos)
       this.drawPointGrid(res.xPos, res.yPos)
